@@ -8,7 +8,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject
-    lateinit var presenter: CoreLogic.UiPresenter
+    lateinit var presenter: DefaultUiPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,6 +18,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onRestartAppClick(v: View) {
-
+        presenter.evtSource.onRestartAppClick()
     }
 }
