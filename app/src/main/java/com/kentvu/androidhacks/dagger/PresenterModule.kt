@@ -1,15 +1,16 @@
 package com.kentvu.androidhacks.dagger
 
 import androidx.annotation.NonNull
+import com.kentvu.androidhacks.App
 import com.kentvu.androidhacks.DefaultUiPresenter
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 
 @Module
-class PresenterModule {
-
+class PresenterModule(private val app: App) {
     @Provides
-    //@Singleton
+    @Singleton
     @NonNull
-    fun providePresenter(): DefaultUiPresenter = DefaultUiPresenter()
+    fun providePresenter(): DefaultUiPresenter = DefaultUiPresenter(app)
 }

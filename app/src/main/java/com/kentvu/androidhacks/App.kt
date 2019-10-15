@@ -11,11 +11,18 @@ class App: Application() {
         fun get(ctx: Context) = ctx.applicationContext as App
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        //DaggerCommonComponent.builder().build()
+    }
+
     val activityComponent: ActivityComponent by lazy {
         buildActivityComponent()
     }
 
     private fun buildActivityComponent(): ActivityComponent {
-        return DaggerActivityComponent.builder().presenterModule(PresenterModule()).build()
+        val component = DaggerActivityComponent.builder().presenterModule(PresenterModule(this)).build()
+        //component.inject(this)
+        return component
     }
 }
