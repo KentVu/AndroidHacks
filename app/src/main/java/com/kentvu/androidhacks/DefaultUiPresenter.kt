@@ -1,6 +1,8 @@
 package com.kentvu.androidhacks
 
 import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
 import androidx.core.content.getSystemService
 import com.kentvu.androidhacks.UiPresenter.UiEvents
 
@@ -9,9 +11,6 @@ class DefaultUiPresenter(private val app: App) : UiPresenter {
         evtConsumers.add(evtConsumer)
     }
 
-    private lateinit var activity: MainActivity
-    // can't inject private property :(
-    //@set:Inject private lateinit var log: Log
     private val log = AndroidLog()
     private val evtConsumers = mutableListOf<UiEvents>() // a little bit ugly naming but...
 
@@ -21,10 +20,11 @@ class DefaultUiPresenter(private val app: App) : UiPresenter {
     val evtSource = object : UiEvents by DelegateUiEventConsumer(evtConsumers) { }
 
     override fun testRestartApp() {
-        //val app = activity.applicationContext
         log.d("DefaultUiPresenter", "testRestartApp")
         val alarmManager = app.getSystemService<AlarmManager>()
-        /*alarmManager?.set(AlarmManager.RTC_WAKEUP,
-            System.currentTimeMillis() + 500, PendingIntent.getActivity())*/
+        alarmManager?.set(AlarmManager.RTC_WAKEUP,
+            System.currentTimeMillis() + 500,
+            PendingIntent.getActivity(app, 0,
+                Intent(app, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT))
     }
 }
