@@ -5,8 +5,7 @@ import android.os.Bundle
 import android.view.View
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(), MainView {
     @Inject
     lateinit var presenter: DefaultUiPresenter
 
@@ -14,7 +13,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         App.get(this).activityComponent.inject(this)
-        presenter.evtSource.onActivityCreate()
+        presenter.evtSource.onActivityCreate(this)
+    }
+
+    override fun restart() {
+        //recreate()
+        finish()
+        startActivity(intent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.evtSource.onActivityDestroy(this)
     }
 
     fun onRestartAppClick(v: View) {

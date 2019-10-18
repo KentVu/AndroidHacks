@@ -6,7 +6,13 @@ interface UiPresenter {
     fun testRestartApp()
 
     interface UiEvents {
-        fun onActivityCreate()
+        fun onActivityCreate(view: MainView)
         fun onRestartAppClick()
+        fun onActivityDestroy(view: MainView)
     }
+}
+
+interface MainView {
+    fun finish()
+    fun restart()
 }

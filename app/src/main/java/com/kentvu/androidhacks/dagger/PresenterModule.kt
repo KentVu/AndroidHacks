@@ -13,5 +13,5 @@ class PresenterModule(private val app: App) {
     @Provides
     @Singleton
     @NonNull
-    fun providePresenter(activity: MainActivity): DefaultUiPresenter = DefaultUiPresenter(app, activity)
+    fun providePresenter(): DefaultUiPresenter = DefaultUiPresenter(app)
 }
