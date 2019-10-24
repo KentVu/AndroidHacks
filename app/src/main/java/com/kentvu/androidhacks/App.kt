@@ -2,9 +2,10 @@ package com.kentvu.androidhacks
 
 import android.app.Application
 import android.content.Context
-import com.kentvu.androidhacks.dagger.ActivityComponent
-import com.kentvu.androidhacks.dagger.DaggerActivityComponent
-import com.kentvu.androidhacks.dagger.PresenterModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
+import org.koin.dsl.module
 
 class App: Application() {
     companion object {
@@ -13,16 +14,11 @@ class App: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        //DaggerCommonComponent.builder().build()
-    }
-
-    val activityComponent: ActivityComponent by lazy {
-        buildActivityComponent()
-    }
-
-    private fun buildActivityComponent(): ActivityComponent {
-        val component = DaggerActivityComponent.builder().presenterModule(PresenterModule(this)).build()
-        //component.inject(this)
-        return component
+        // Start Koin
+        startKoin{
+            androidLogger()
+            androidContext(this@App)
+            modules(listOf(appModule))
+        }
     }
 }
