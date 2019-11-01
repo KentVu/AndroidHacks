@@ -13,7 +13,6 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="16dp"
-        android:inputType="textMultiLine"
         android:text="startParam"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -37,7 +36,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:onClick="onNotificationClick"
-        android:text="notification"
+        android:text="Schedule notification"
         app:layout_constraintBaseline_toBaselineOf="@+id/button"
         app:layout_constraintStart_toEndOf="@+id/button" />
 

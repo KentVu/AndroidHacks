@@ -2,7 +2,11 @@ package com.kentvu.androidhacks
 
 import com.kentvu.common.Log
 
-class UiPresenter(val view: View, val log: Log) {
+class UiPresenter(
+    val view: View,
+    val log: Log,
+    private val useCase: UseCase
+) {
     interface UiEvents {
         fun onActivityCreate()
         fun onRestartAppClick()
@@ -36,7 +40,7 @@ class UiPresenter(val view: View, val log: Log) {
 
         override fun onNotificationClick() {
             log.d("CoreLogic.evt", "onRestartAppClick:onNotificationClick")
-            view.createNotification()
+            useCase.scheduleNotification(2000)
         }
 
         override fun onActivityDestroy() {
