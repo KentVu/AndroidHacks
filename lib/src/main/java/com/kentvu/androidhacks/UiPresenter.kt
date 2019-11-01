@@ -35,7 +35,7 @@ class UiPresenter(val view: View, val log: Log) {
         }
 
         override fun onNotificationClick() {
-            log.d("CoreLogic.evt", "onRestartAppClick:not implemented")
+            log.d("CoreLogic.evt", "onRestartAppClick:onNotificationClick")
             view.createNotification()
         }
 
