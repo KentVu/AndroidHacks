@@ -1,8 +1,7 @@
 package com.kentvu.androidhacks
 
+import android.app.ActivityManager
 import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -10,8 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.scope.currentScope
 import org.koin.core.parameter.parametersOf
@@ -50,10 +47,12 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
         presenter.evtListener.onActivityDestroy()
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onRestartAppClick(v: View) {
         presenter.evtListener.onRestartAppClick()
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onNotificationClick(v: View) {
         presenter.evtListener.onNotificationClick()
     }
@@ -65,12 +64,26 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
 class ActivityUseCase(val activity: MainActivity) : UseCase {
     override fun scheduleNotification(afterMillis: Int) {
         val alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        //AlarmManagerCompat.setAlarmClock(alarmManager, )
-        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + afterMillis,
-            PendingIntent.getForegroundService(
-                activity, 0, Intent("", null, activity, MyService::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT
-        ))
+        val intent = Intent("TODO", null, activity, MyService::class.java)
+        val pendingService = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            PendingIntent.getForegroundService(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        } else {
+            PendingIntent.getService(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+        alarmManager.set(
+            AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + afterMillis, pendingService
+        )
+    }
+
+    override fun closeApp() {
+        val activityManager = activity.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            for (appTask in activityManager.appTasks) {
+                appTask.finishAndRemoveTask()
+            }
+        } else {
+            activity.finish()
+        }
     }
 
 }

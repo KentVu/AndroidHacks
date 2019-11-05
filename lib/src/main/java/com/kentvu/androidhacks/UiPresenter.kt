@@ -41,6 +41,7 @@ class UiPresenter(
         override fun onNotificationClick() {
             log.d("CoreLogic.evt", "onRestartAppClick:onNotificationClick")
             useCase.scheduleNotification(2000)
+            useCase.closeApp()
         }
 
         override fun onActivityDestroy() {
