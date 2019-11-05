@@ -13,14 +13,11 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
 
-private val log = AndroidLog()
 
 class ContinuationService : Service() {
 
     companion object {
         private const val CONTINUATION_EXTRA = "cont"
-        private const val ACTION_SHOW_NOTIFICATION = "show_notification"
-        private const val EXTRA_NOTI = "noti"
         private const val ACTION_CONTINUATION = "continue"
 
         internal fun Intent.putContinuation(messenger: Messenger) {
@@ -32,13 +29,6 @@ class ContinuationService : Service() {
         }
 
 
-        fun showNotification(ctx: Context, notification: Notification) {
-            ctx.startService(
-                Intent(ACTION_SHOW_NOTIFICATION, null, ctx, ContinuationService::class.java).apply {
-                    putExtra(EXTRA_NOTI, notification)
-                })
-        }
-
         fun makeContinuationIntent(ctx: Context, cont: Continuation<Unit>): Intent =
             Intent(ACTION_CONTINUATION, null, ctx, ContinuationService::class.java).apply {
                 putContinuation(Messenger(ContinuationHandler(cont)))
@@ -47,14 +37,13 @@ class ContinuationService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         log.d("ContinuationService", "onStartCommand:$intent")
-        // startForeground(1, createNotification())
         intent ?: return START_NOT_STICKY
         when (intent.action) {
             ACTION_CONTINUATION -> {
                 intent.getContinuation().send(Message.obtain())
             }
-            else -> { /*ACTION_SHOW_NOTIFICATION*/
-                startForeground(1, intent.getParcelableExtra(EXTRA_NOTI))
+            else -> {
+
             }
         }
         return super.onStartCommand(intent, flags, startId)

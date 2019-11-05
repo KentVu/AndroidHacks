@@ -1,9 +1,6 @@
 package com.kentvu.androidhacks
 
-import android.app.ActivityManager
-import android.app.AlarmManager
-import android.app.Notification
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -17,8 +14,9 @@ private const val REQUEST_CODE = 0
 /**
  * [UseCase] that sticks to this activity.
  */
-class ActivityUseCase(val activity: MainActivity) : UseCase {
+class ActivityUseCase(private val activity: Activity) : UseCase {
     private val log = AndroidLog()
+
     val job = Job()
     val mainScope = CoroutineScope(job + Dispatchers.Main)
     override fun scheduleNotification(afterMillis: Int) {
@@ -27,7 +25,6 @@ class ActivityUseCase(val activity: MainActivity) : UseCase {
             showNotification()
         }
     }
-
     override fun closeApp() {
         val activityManager = activity.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -38,7 +35,6 @@ class ActivityUseCase(val activity: MainActivity) : UseCase {
             activity.finish()
         }
     }
-
 
     private suspend fun delayByAlarm(ms: Int):Unit = suspendCoroutine { cont ->
         val alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -53,6 +49,11 @@ class ActivityUseCase(val activity: MainActivity) : UseCase {
         alarmManager.set(
             AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + ms, pendingService
         )
+    }
+
+
+    override fun stopNotification() {
+        NotificationService.cancelNotification(activity)
     }
 
     private fun createNotification(): Notification {
@@ -84,7 +85,7 @@ class ActivityUseCase(val activity: MainActivity) : UseCase {
     }
 
     private fun showNotification() {
-        ContinuationService.showNotification(activity, createNotification())
+        NotificationService.showNotification(activity, createNotification())
     }
 
 }

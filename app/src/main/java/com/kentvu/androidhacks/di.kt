@@ -12,7 +12,10 @@ val appModule = module {
     // Simple Presenter Factory
     //factory { UiPresenter(view) }
     scope(named<MainActivity>()) {
-        scoped { (view: UiPresenter.View, useCase: UseCase) -> UiPresenter(view, get(), useCase) } // TODO inject log
+        scoped { (view: UiPresenter.View, useCase: UseCase) -> UiPresenter(view, get(), useCase) }
+    }
+    scope(named<NotificationActivity>()) {
+        scoped { (view: UiPresenter.View, useCase: UseCase) -> UiPresenter(view, get(), useCase) }
     }
 }
 

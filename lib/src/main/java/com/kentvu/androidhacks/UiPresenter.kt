@@ -12,6 +12,7 @@ class UiPresenter(
         fun onRestartAppClick()
         fun onActivityDestroy()
         fun onNotificationClick()
+        fun onNotificationActivityCreate()
     }
 
     interface BuildConfig {
@@ -46,6 +47,10 @@ class UiPresenter(
 
         override fun onActivityDestroy() {
             log.d("CoreLogic.evt", "onActivityDestroy:not implemented")
+        }
+
+        override fun onNotificationActivityCreate() {
+            useCase.stopNotification()
         }
     }
 
