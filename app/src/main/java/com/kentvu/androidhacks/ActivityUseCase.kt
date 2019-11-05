@@ -7,12 +7,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Handler
-import android.os.Message
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
-import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 private const val NOTIFICATION_ID = 0
@@ -46,13 +42,7 @@ class ActivityUseCase(val activity: MainActivity) : UseCase {
 
     private suspend fun delayByAlarm(ms: Int):Unit = suspendCoroutine { cont ->
         val alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = ContinuationService.makeContinuationIntent(activity,
-            object : Handler() {
-                override fun handleMessage(msg: Message) {
-                    log.d("Handler", "$msg")
-                    cont.resume(Unit)
-                }
-            })
+        val intent = ContinuationService.makeContinuationIntent(activity, cont)
         val pendingService = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             PendingIntent.getForegroundService(
                 activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
@@ -65,7 +55,7 @@ class ActivityUseCase(val activity: MainActivity) : UseCase {
         )
     }
 
-    fun createNotification(): Notification {
+    private fun createNotification(): Notification {
         // test https://developer.android.com/training/notify-user/time-sensitive
         val fullScreenIntent = Intent(activity, NotificationActivity::class.java)
         val fullScreenPendingIntent = PendingIntent.getActivity(

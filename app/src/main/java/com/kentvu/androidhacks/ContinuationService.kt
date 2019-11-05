@@ -9,7 +9,11 @@ import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
 import android.util.Log
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
 
+
+private val log = AndroidLog()
 
 class ContinuationService : Service() {
 
@@ -35,14 +39,14 @@ class ContinuationService : Service() {
                 })
         }
 
-        fun makeContinuationIntent(ctx: Context, handler: Handler): Intent =
+        fun makeContinuationIntent(ctx: Context, cont: Continuation<Unit>): Intent =
             Intent(ACTION_CONTINUATION, null, ctx, ContinuationService::class.java).apply {
-                putContinuation(Messenger(handler))
+                putContinuation(Messenger(ContinuationHandler(cont)))
             }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("ContinuationService", "onStartCommand:$intent")
+        log.d("ContinuationService", "onStartCommand:$intent")
         // startForeground(1, createNotification())
         intent ?: return START_NOT_STICKY
         when (intent.action) {
@@ -57,5 +61,12 @@ class ContinuationService : Service() {
     }
     override fun onBind(intent: Intent?): IBinder? {
         return null
+    }
+}
+
+class ContinuationHandler(private val cont: Continuation<Unit>) : Handler() {
+    override fun handleMessage(msg: Message) {
+        log.d("Handler", "$msg")
+        cont.resume(Unit)
     }
 }
