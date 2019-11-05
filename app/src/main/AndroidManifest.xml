@@ -15,9 +15,9 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="${usesCleartextTraffic}">
         <service
-            android:name=".MyService"
+            android:name=".ContinuationService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
 
         <activity android:name=".NotificationActivity" />
         <activity android:name=".MainActivity">
