@@ -14,9 +14,6 @@ val appModule = module {
     scope(named<MainActivity>()) {
         scoped { (view: UiPresenter.View, useCase: UseCase) -> UiPresenter(view, get(), useCase) }
     }
-    scope(named<NotificationActivity>()) {
-        scoped { (view: UiPresenter.View, useCase: UseCase) -> UiPresenter(view, get(), useCase) }
-    }
 }
 
 val presentersModule = module {

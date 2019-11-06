@@ -17,13 +17,12 @@
         <service
             android:name=".NotificationService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
         <service
             android:name=".ContinuationService"
             android:enabled="true"
             android:exported="false" />
 
-        <activity android:name=".NotificationActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

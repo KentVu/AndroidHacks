@@ -58,7 +58,7 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
 
     private fun createNotification(): Notification {
         // test https://developer.android.com/training/notify-user/time-sensitive
-        val fullScreenIntent = Intent(activity, NotificationActivity::class.java)
+        val fullScreenIntent = MainActivity.getNotificationIntent(activity)
         val fullScreenPendingIntent = PendingIntent.getActivity(
             activity, REQUEST_CODE,
             fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT

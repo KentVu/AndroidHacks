@@ -1,5 +1,7 @@
 package com.kentvu.androidhacks
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +11,10 @@ import org.koin.core.parameter.parametersOf
 
 class MainActivity() : AppCompatActivity(), UiPresenter.View {
 
+    companion object {
+        private val ACTION_NOTIFICATION = "NOTIFICATION"
+        fun getNotificationIntent(ctx: Context) = Intent(ACTION_NOTIFICATION, null, ctx, MainActivity::class.java)
+    }
     override val build = object : UiPresenter.BuildConfig {
         override val variant = "${BuildConfig.FLAVOR} - ${BuildConfig.BUILD_TYPE}"
     }
@@ -21,9 +27,14 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        //recycler.adapter = adapter
-        presenter.evtListener.onActivityCreate()
+        if (intent == null || intent.action == Intent.ACTION_MAIN) {
+            setContentView(R.layout.activity_main)
+            presenter.evtListener.onActivityCreate()
+        } else { /*ACTION_NOTIFICATION*/
+            setContentView(R.layout.activity_notification)
+            // TODO: Cancel notification
+            presenter.evtListener.onNotificationActivityCreate()
+        }
     }
 
     override fun restart() {
