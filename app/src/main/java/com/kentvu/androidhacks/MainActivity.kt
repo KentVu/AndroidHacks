@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -36,26 +37,32 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
         set(value) { mainFragment.textView.text = value }
 
     private val presenter : UiPresenter by currentScope.inject { parametersOf(this, ActivityUseCase(this)) }
-    private val mainScope = MainScope()
+    private lateinit var mainScope: CoroutineScope
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        log.d("MainActivity", "onResume")
+        mainScope = MainScope()
         if (intent == null || intent.action == Intent.ACTION_MAIN) {
-            // CommitNow since uiPresenter is accessing its view
             mainScope.launch {
                 switchFragment(mainFragment)
                 presenter.evtListener.onActivityCreate()
             }
         } else { /*ACTION_NOTIFICATION*/
-            // TODO: Cancel notification
             supportFragmentManager.beginTransaction().add(R.id.root_layout, notificationFragment).commit()
             presenter.evtListener.onNotificationActivityCreate()
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onPause() {
+        super.onPause()
+        log.d("MainActivity", "onPause")
+        mainScope.cancel()
     }
 
     override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
@@ -79,8 +86,8 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
     }
 
     private suspend fun switchFragment(fragment: Fragment) {
-        log.d("MainActivity", "switchFragment:to[$fragment]")
-        supportFragmentManager.beginTransaction().replace(R.id.root_layout, fragment).commitAllowingStateLoss()
+        log.d("MainActivity", "switchFragment:to[$fragment]resumed=TODO")
+        supportFragmentManager.beginTransaction().replace(R.id.root_layout, fragment).commit()
         waitForFragmentViewCreated()
     }
 
