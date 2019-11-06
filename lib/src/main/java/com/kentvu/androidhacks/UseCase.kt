@@ -4,4 +4,5 @@ interface UseCase {
     fun scheduleNotification(afterMillis: Int)
     fun closeApp()
     fun stopNotification()
+    fun showNotification()
 }

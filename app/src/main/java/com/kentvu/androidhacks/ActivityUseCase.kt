@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.*
 import kotlin.coroutines.suspendCoroutine
 
@@ -22,7 +23,7 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
     override fun scheduleNotification(afterMillis: Int) {
         mainScope.launch(Dispatchers.Main) {
             delayByAlarm(afterMillis)
-            showNotification()
+            showServiceNotification()
         }
     }
     override fun closeApp() {
@@ -50,7 +51,11 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
         NotificationService.cancelNotification(activity)
     }
 
-    private fun createNotification(): Notification {
+    override fun showNotification() {
+        NotificationManagerCompat.from(activity).notify(1, createNotification(true))
+    }
+
+    private fun createNotification(fullScreen: Boolean): Notification {
         // test https://developer.android.com/training/notify-user/time-sensitive
         val fullScreenIntent = MainActivity.getNotificationIntent(activity)
         val fullScreenPendingIntent = PendingIntent.getActivity(
@@ -66,20 +71,22 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
-
-                // Use a full-screen intent only for the highest-priority alerts where you
-                // have an associated activity that you would like to launch after the user
-                // interacts with the notification. Also, if your app targets Android 10
-                // or higher, you need to request the USE_FULL_SCREEN_INTENT permission in
-                // order for the platform to invoke this notification.
-                .setFullScreenIntent(fullScreenPendingIntent, true)
-
+        if (fullScreen) {
+            // Use a full-screen intent only for the highest-priority alerts where you
+            // have an associated activity that you would like to launch after the user
+            // interacts with the notification. Also, if your app targets Android 10
+            // or higher, you need to request the USE_FULL_SCREEN_INTENT permission in
+            // order for the platform to invoke this notification.
+            notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true)
+        } else {
+            notificationBuilder.setContentIntent(fullScreenPendingIntent)
+        }
         val incomingCallNotification = notificationBuilder.build()
         return incomingCallNotification
     }
 
-    private fun showNotification() {
-        NotificationService.showNotification(activity, createNotification())
+    private fun showServiceNotification() {
+        NotificationService.showNotification(activity, createNotification(false))
     }
 
 }

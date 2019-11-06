@@ -11,8 +11,9 @@ class UiPresenter(
         fun onActivityCreate()
         fun onRestartAppClick()
         fun onActivityDestroy()
-        fun onNotificationClick()
+        fun onScheduleNotificationClick()
         fun onNotificationActivityCreate()
+        fun onShowNotificationClick()
     }
 
     interface BuildConfig {
@@ -38,8 +39,8 @@ class UiPresenter(
             testRestartApp()
         }
 
-        override fun onNotificationClick() {
-            log.d("CoreLogic.evt", "onRestartAppClick:onNotificationClick")
+        override fun onScheduleNotificationClick() {
+            log.d("CoreLogic.evt", "onRestartAppClick:onScheduleNotificationClick")
             useCase.scheduleNotification(2000)
             useCase.closeApp()
         }
@@ -50,6 +51,10 @@ class UiPresenter(
 
         override fun onNotificationActivityCreate() {
             useCase.stopNotification()
+        }
+
+        override fun onShowNotificationClick() {
+            useCase.showNotification()
         }
     }
 

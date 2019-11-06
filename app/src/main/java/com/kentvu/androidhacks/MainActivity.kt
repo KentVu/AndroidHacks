@@ -72,7 +72,7 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
     }
 
     override fun onBackPressed() {
-        if (supportFragmentManager.findFragmentById(R.id.root_layout) == mainFragment) {
+        if (supportFragmentManager.findFragmentById(R.id.root_layout) == notificationFragment) {
             supportFragmentManager.beginTransaction().replace(R.id.root_layout, mainFragment).commit()
         } else {
             super.onBackPressed()
@@ -113,8 +113,13 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
     }
 
     @Suppress("UNUSED_PARAMETER")
-    fun onNotificationClick(v: View) {
-        presenter.evtListener.onNotificationClick()
+    fun onScheduleNotificationClick(v: View) {
+        presenter.evtListener.onScheduleNotificationClick()
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun onShowNotificationClick(v: View) {
+        presenter.evtListener.onShowNotificationClick()
     }
 }
 
