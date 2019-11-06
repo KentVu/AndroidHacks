@@ -25,7 +25,6 @@ class UiPresenter(
 
         fun finish()
         fun restart()
-        fun createNotification()
     }
 
     val evtListener = object : UiEvents {

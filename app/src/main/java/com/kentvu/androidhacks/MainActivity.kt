@@ -5,9 +5,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import org.koin.android.scope.currentScope
 import org.koin.core.parameter.parametersOf
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class MainActivity() : AppCompatActivity(), UiPresenter.View {
 
@@ -19,21 +26,41 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
         override val variant = "${BuildConfig.FLAVOR} - ${BuildConfig.BUILD_TYPE}"
     }
 
+    private val mainFragment = Fragment(R.layout.content_main)
+    private val notificationFragment = NotificationFragment()
+
     override var details: String
-        get() = textView.text.toString()
-        set(value) { textView.text = value }
+        get() = mainFragment.textView.text.toString()
+        set(value) { mainFragment.textView.text = value }
 
     private val presenter : UiPresenter by currentScope.inject { parametersOf(this, ActivityUseCase(this)) }
+    private val mainScope = MainScope()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+
+    override fun onResume() {
+        super.onResume()
         if (intent == null || intent.action == Intent.ACTION_MAIN) {
-            setContentView(R.layout.activity_main)
-            presenter.evtListener.onActivityCreate()
+            // CommitNow since uiPresenter is accessing its view
+            mainScope.launch {
+                switchFragment(mainFragment)
+                presenter.evtListener.onActivityCreate()
+            }
         } else { /*ACTION_NOTIFICATION*/
-            setContentView(R.layout.activity_notification)
             // TODO: Cancel notification
+            supportFragmentManager.beginTransaction().add(R.id.root_layout, notificationFragment).commit()
             presenter.evtListener.onNotificationActivityCreate()
+        }
+    }
+
+    override fun onBackPressed() {
+        if (supportFragmentManager.findFragmentById(R.id.root_layout) == mainFragment) {
+            supportFragmentManager.beginTransaction().replace(R.id.root_layout, mainFragment).commit()
+        } else {
+            super.onBackPressed()
         }
     }
 
@@ -43,8 +70,20 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
         startActivity(intent)
     }
 
-    override fun createNotification() {
-        TODO()
+    private suspend fun switchFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction().replace(R.id.root_layout, fragment).commit()
+        waitForFragmentViewCreated()
+    }
+
+    private suspend fun waitForFragmentViewCreated() = suspendCoroutine {cont: Continuation<Unit> ->
+        supportFragmentManager.registerFragmentLifecycleCallbacks(object :
+            FragmentManager.FragmentLifecycleCallbacks() {
+            override fun onFragmentViewCreated(fm: FragmentManager, f: Fragment, v: View, savedInstanceState: Bundle?) {
+                super.onFragmentViewCreated(fm, f, v, savedInstanceState)
+                supportFragmentManager.unregisterFragmentLifecycleCallbacks(this)
+                cont.resume(Unit)
+            }
+        }, false)
     }
 
     override fun onDestroy() {
@@ -63,3 +102,6 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
     }
 }
 
+class MainFragment: Fragment(R.layout.content_main) {
+}
+class NotificationFragment: Fragment(R.layout.content_notification)

@@ -39,13 +39,7 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
     private suspend fun delayByAlarm(ms: Int):Unit = suspendCoroutine { cont ->
         val alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = ContinuationService.makeContinuationIntent(activity, cont)
-        val pendingService = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            PendingIntent.getForegroundService(
-                activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
-            )
-        } else {
-            PendingIntent.getService(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
+        val pendingService = PendingIntent.getService(activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         alarmManager.set(
             AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + ms, pendingService
         )

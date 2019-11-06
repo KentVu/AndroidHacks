@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import androidx.core.content.ContextCompat
 
 class NotificationService : Service() {
     companion object {
@@ -13,14 +14,14 @@ class NotificationService : Service() {
         private const val EXTRA_NOTI = "noti"
 
         fun showNotification(ctx: Context, notification: Notification) {
-            ctx.startService(
-                Intent(ACTION_SHOW_NOTIFICATION, null, ctx, NotificationService::class.java).apply {
-                    putExtra(EXTRA_NOTI, notification)
-                })
+            ContextCompat.startForegroundService(
+                ctx,
+                Intent(ACTION_SHOW_NOTIFICATION, null, ctx, NotificationService::class.java)
+                    .putExtra(EXTRA_NOTI, notification)
+            )
         }
 
         fun cancelNotification(ctx: Context) {
-
             ctx.startService(Intent(ACTION_CANCEL_NOTIFICATION, null, ctx, NotificationService::class.java))
         }
 
