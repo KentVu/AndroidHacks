@@ -3,12 +3,14 @@ package com.kentvu.androidhacks
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.android.scope.currentScope
 import org.koin.core.parameter.parametersOf
@@ -39,10 +41,6 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-    }
-
-    override fun onResume() {
-        super.onResume()
         if (intent == null || intent.action == Intent.ACTION_MAIN) {
             // CommitNow since uiPresenter is accessing its view
             mainScope.launch {
@@ -54,6 +52,16 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
             supportFragmentManager.beginTransaction().add(R.id.root_layout, notificationFragment).commit()
             presenter.evtListener.onNotificationActivityCreate()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState)
+        log.d("MainActivity", "onSaveInstanceState:outState=[$outState],oPS=[$outPersistentState]")
+        // mainScope.cancel()
     }
 
     override fun onBackPressed() {
@@ -71,7 +79,8 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
     }
 
     private suspend fun switchFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction().replace(R.id.root_layout, fragment).commit()
+        log.d("MainActivity", "switchFragment:to[$fragment]")
+        supportFragmentManager.beginTransaction().replace(R.id.root_layout, fragment).commitAllowingStateLoss()
         waitForFragmentViewCreated()
     }
 
