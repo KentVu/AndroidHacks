@@ -26,16 +26,6 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
             showServiceNotification()
         }
     }
-    override fun closeApp() {
-        val activityManager = activity.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            for (appTask in activityManager.appTasks) {
-                appTask.finishAndRemoveTask()
-            }
-        } else {
-            activity.finish()
-        }
-    }
 
     private suspend fun delayByAlarm(ms: Int):Unit = suspendCoroutine { cont ->
         val alarmManager = activity.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -46,6 +36,20 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
         )
     }
 
+    private fun showServiceNotification() {
+        NotificationService.showNotification(activity, createNotification(false))
+    }
+
+    override fun closeApp() {
+        val activityManager = activity.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            for (appTask in activityManager.appTasks) {
+                appTask.finishAndRemoveTask()
+            }
+        } else {
+            activity.finish()
+        }
+    }
 
     override fun stopNotification() {
         NotificationService.cancelNotification(activity)
@@ -85,8 +89,7 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
         return incomingCallNotification
     }
 
-    private fun showServiceNotification() {
-        NotificationService.showNotification(activity, createNotification(false))
+    override fun cancelNotification() {
+        NotificationManagerCompat.from(activity).cancel(1)
     }
-
 }

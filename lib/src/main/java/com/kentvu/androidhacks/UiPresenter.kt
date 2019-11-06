@@ -30,23 +30,24 @@ class UiPresenter(
 
     val evtListener = object : UiEvents {
         override fun onActivityCreate() {
-            log.w("CoreLogic.evt", "onActivityCreate:not implemented")
+            log.w("UiPresenter.evt", "onActivityCreate")
             view.details = "Build: ${view.build.variant}"
+            useCase.cancelNotification()
         }
 
         override fun onRestartAppClick() {
-            log.d("CoreLogic.evt", "onRestartAppClick:not implemented")
+            log.d("UiPresenter.evt", "onRestartAppClick")
             testRestartApp()
         }
 
         override fun onScheduleNotificationClick() {
-            log.d("CoreLogic.evt", "onRestartAppClick:onScheduleNotificationClick")
+            log.d("UiPresenter.evt", "onRestartAppClick:onScheduleNotificationClick")
             useCase.scheduleNotification(2000)
             useCase.closeApp()
         }
 
         override fun onActivityDestroy() {
-            log.d("CoreLogic.evt", "onActivityDestroy:not implemented")
+            log.d("UiPresenter.evt", "onActivityDestroy:not implemented")
         }
 
         override fun onNotificationActivityCreate() {

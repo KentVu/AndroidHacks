@@ -5,4 +5,5 @@ interface UseCase {
     fun closeApp()
     fun stopNotification()
     fun showNotification()
+    fun cancelNotification()
 }
