@@ -119,7 +119,7 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
 
     @Suppress("UNUSED_PARAMETER")
     fun onScheduleNotificationClick(v: View) {
-        presenter.evtListener.onScheduleNotificationClick(radioGroup.checkedRadioButtonId == R.id.radioFullScreen)
+        presenter.evtListener.onScheduleNotificationClick(spinNotifType.checkedRadioButtonId == R.id.radioFullScreen)
     }
 
     @Suppress("UNUSED_PARAMETER")
