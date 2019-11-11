@@ -30,7 +30,7 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
     }
 
     private val mainFragment = Fragment(R.layout.content_main)
-    private val notificationFragment = NotificationFragment()
+    private val notificationFragment = Fragment(R.layout.content_notification)
 
     override var details: String
         get() = mainFragment.textView.text.toString()
@@ -50,11 +50,11 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
         mainScope = MainScope()
         if (intent == null || intent.action == Intent.ACTION_MAIN) {
             mainScope.launch {
-                switchFragment(mainFragment)
+                switchAndWaitFragment(mainFragment)
                 presenter.evtListener.onActivityCreate()
             }
         } else { /*ACTION_NOTIFICATION*/
-            supportFragmentManager.beginTransaction().add(R.id.root_layout, notificationFragment).commit()
+            switchFragment(notificationFragment)
             presenter.evtListener.onNotificationActivityCreate()
         }
     }
@@ -85,9 +85,14 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
         startActivity(intent)
     }
 
-    private suspend fun switchFragment(fragment: Fragment) {
-        log.d("MainActivity", "switchFragment:to[$fragment]resumed=TODO")
+    private fun switchFragment(fragment: Fragment) {
+        log.d("MainActivity", "switchFragment:to[$fragment]")
         supportFragmentManager.beginTransaction().replace(R.id.root_layout, fragment).commit()
+    }
+
+    private suspend fun switchAndWaitFragment(fragment: Fragment) {
+        log.d("MainActivity", "switchAndWaitFragment:to[$fragment]")
+        switchFragment(fragment)
         waitForFragmentViewCreated()
     }
 
@@ -114,7 +119,7 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
 
     @Suppress("UNUSED_PARAMETER")
     fun onScheduleNotificationClick(v: View) {
-        presenter.evtListener.onScheduleNotificationClick()
+        presenter.evtListener.onScheduleNotificationClick(radioGroup.checkedRadioButtonId == R.id.radioFullScreen)
     }
 
     @Suppress("UNUSED_PARAMETER")

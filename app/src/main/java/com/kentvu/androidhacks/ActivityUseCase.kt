@@ -2,7 +2,6 @@ package com.kentvu.androidhacks
 
 import android.app.*
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -20,10 +19,10 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
 
     val job = Job()
     val mainScope = CoroutineScope(job + Dispatchers.Main)
-    override fun scheduleNotification(afterMillis: Int) {
+    override fun scheduleNotification(afterMillis: Int, fullScreen: Boolean) {
         mainScope.launch(Dispatchers.Main) {
             delayByAlarm(afterMillis)
-            showServiceNotification()
+            showServiceNotification(fullScreen)
         }
     }
 
@@ -36,8 +35,8 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
         )
     }
 
-    private fun showServiceNotification() {
-        NotificationService.showNotification(activity, createNotification(false))
+    private fun showServiceNotification(fullScreen: Boolean) {
+        NotificationService.showNotification(activity, createNotification(fullScreen))
     }
 
     override fun closeApp() {
@@ -72,7 +71,6 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
                 .setSmallIcon(R.mipmap.ic_notification)
                 .setContentTitle("Incoming call")
                 .setContentText("(919) 555-1234")
-                .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
         if (fullScreen) {
@@ -83,7 +81,9 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
             // order for the platform to invoke this notification.
             notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true)
         } else {
-            notificationBuilder.setContentIntent(fullScreenPendingIntent)
+            notificationBuilder
+                .setAutoCancel(true)
+                .setContentIntent(fullScreenPendingIntent)
         }
         val incomingCallNotification = notificationBuilder.build()
         return incomingCallNotification

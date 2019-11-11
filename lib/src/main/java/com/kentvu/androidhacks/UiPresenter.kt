@@ -11,7 +11,7 @@ class UiPresenter(
         fun onActivityCreate()
         fun onRestartAppClick()
         fun onActivityDestroy()
-        fun onScheduleNotificationClick()
+        fun onScheduleNotificationClick(fullScreen: Boolean)
         fun onNotificationActivityCreate()
         fun onShowNotificationClick()
     }
@@ -40,9 +40,9 @@ class UiPresenter(
             testRestartApp()
         }
 
-        override fun onScheduleNotificationClick() {
-            log.d("UiPresenter.evt", "onRestartAppClick:onScheduleNotificationClick")
-            useCase.scheduleNotification(2000)
+        override fun onScheduleNotificationClick(fullScreen: Boolean) {
+            log.d("UiPresenter.evt", "onRestartAppClick:onScheduleNotificationClick:fs=$fullScreen")
+            useCase.scheduleNotification(2000, fullScreen)
             useCase.closeApp()
         }
 
