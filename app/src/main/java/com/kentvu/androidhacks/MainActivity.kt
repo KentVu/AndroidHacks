@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.SpinnerAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -26,18 +27,23 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
         private val ACTION_NOTIFICATION = "NOTIFICATION"
         fun getNotificationIntent(ctx: Context) = Intent(ACTION_NOTIFICATION, null, ctx, MainActivity::class.java)
     }
+
+    override val isNotifFullScreen: Boolean
+        get() = spinNotifType.selectedItem == resources.getStringArray(R.array.notification_type)[0]
+
     override val build = object : UiPresenter.BuildConfig {
         override val variant = "${BuildConfig.FLAVOR} - ${BuildConfig.BUILD_TYPE}"
     }
 
-    private val mainFragment = Fragment(R.layout.content_main)
+    internal val presenter : UiPresenter by currentScope.inject { parametersOf(this, ActivityUseCase(this)) }
+
+    private val mainFragment = MainFragment()
     private val notificationFragment = Fragment(R.layout.content_notification)
 
     override var details: String
         get() = mainFragment.textView.text.toString()
         set(value) { mainFragment.textView.text = value }
 
-    private val presenter : UiPresenter by currentScope.inject { parametersOf(this, ActivityUseCase(this)) }
     private lateinit var mainScope: CoroutineScope
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,25 +59,11 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
             mainScope.launch {
                 switchAndWaitFragment(mainFragment)
                 presenter.evtListener.onActivityCreate()
-                populateSpinner()
             }
         } else { /*ACTION_NOTIFICATION*/
             switchFragment(notificationFragment)
             presenter.evtListener.onNotificationActivityCreate()
-        }
-    }
-
-    /** Create an ArrayAdapter using the string array and a default spinner layout. */
-    private fun populateSpinner() {
-        ArrayAdapter.createFromResource(
-            this@MainActivity,
-            R.array.notification_type,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            // Specify the layout to use when the list of choices appears
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Apply the adapter to the spinner
-            spinNotifType.adapter = adapter
+            //intent = null
         }
     }
 
@@ -95,10 +87,8 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
         }
     }
 
-    override fun restart() {
-        //recreate()
-        finish()
-        startActivity(intent)
+    override fun populateHacks(hacks: List<String>) {
+        mainFragment.populateHacks(hacks)
     }
 
     private fun switchFragment(fragment: Fragment) {
@@ -129,22 +119,54 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
     }
 
     @Suppress("UNUSED_PARAMETER")
-    fun onRestartAppClick(v: View) {
-        presenter.evtListener.onRestartAppClick()
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun onScheduleNotificationClick(v: View) {
-        presenter.evtListener.onScheduleNotificationClick(
-            spinNotifType.selectedItem == resources.getStringArray(R.array.notification_type)[0])
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun onShowNotificationClick(v: View) {
-        presenter.evtListener.onShowNotificationClick()
+    fun onGoClick(v: View) {
+        presenter.evtListener.onBtnGoClick(mainFragment.currentHack)
     }
 }
 
-class MainFragment: Fragment(R.layout.content_main) {
+class MainFragment : Fragment(R.layout.content_main) {
+    private lateinit var hacksAdapter: SpinnerAdapter
+    val currentHack: String get() = spinHacks.selectedItem as String
+
+    private val presenter: UiPresenter by lazy {
+        (activity as MainActivity).presenter
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        populateSpinners()
+        presenter.evtListener.onMainFragmentCreate()
+    }
+
+    /** Create an ArrayAdapter using the string array and a default spinner layout. */
+    private fun populateSpinners() {
+        // Apply the adapter to the spinner
+        spinNotifType.adapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.notification_type,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        spinNotifPriority.adapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.notification_priority,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+    }
+
+    fun populateHacks(hacks: List<String>) {
+        hacksAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            hacks
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        spinHacks.adapter = hacksAdapter
+    }
 }
 class NotificationFragment: Fragment(R.layout.content_notification)

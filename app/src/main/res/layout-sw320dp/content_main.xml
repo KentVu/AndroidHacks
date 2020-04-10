@@ -10,6 +10,7 @@
         android:id="@+id/buttonGo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:onClick="onGoClick"
         android:text="Go"
         app:layout_constraintStart_toStartOf="@+id/spinHacks"
@@ -19,19 +20,20 @@
         android:id="@+id/spinNotifPriority"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:tooltipText="NotifPriority"
-        app:layout_constraintStart_toStartOf="@+id/spinNotifType"
-        app:layout_constraintTop_toBottomOf="@+id/spinNotifType" />
+        app:layout_constraintLeft_toRightOf="@id/spinNotifType"
+        app:layout_constraintTop_toTopOf="@id/spinNotifType" />
 
     <Spinner
         android:id="@+id/spinHacks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintLeft_toRightOf="@id/labelHacks"
-        app:layout_constraintTop_toBottomOf="@+id/spinNotifPriority" />
+        app:layout_constraintTop_toTopOf="@id/labelHacks" />
 
     <!--tools:items="@array/notification_priority"-->
     <Spinner
@@ -50,9 +52,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
         android:text="Select Hacks:"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/spinHacks" />
+        app:layout_constraintTop_toBottomOf="@id/labelNotifConfigs" />
 
     <TextView
         android:id="@+id/textView"

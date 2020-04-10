@@ -4,6 +4,13 @@ apply plugin: 'kotlin'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+}
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = freeCompilerArgs + "-Xuse-experimental=kotlin.Experimental"
+    }
 }
 
 sourceCompatibility = "7"

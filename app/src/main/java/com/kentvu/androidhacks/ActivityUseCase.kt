@@ -17,8 +17,9 @@ private const val REQUEST_CODE = 0
 class ActivityUseCase(private val activity: Activity) : UseCase {
     private val log = AndroidLog()
 
-    val job = Job()
-    val mainScope = CoroutineScope(job + Dispatchers.Main)
+    private val job = Job()
+    private val mainScope = CoroutineScope(job + Dispatchers.Main)
+
     override fun scheduleNotification(afterMillis: Int, fullScreen: Boolean) {
         mainScope.launch(Dispatchers.Main) {
             delayByAlarm(afterMillis)
@@ -91,5 +92,14 @@ class ActivityUseCase(private val activity: Activity) : UseCase {
 
     override fun cancelNotification() {
         NotificationManagerCompat.from(activity).cancel(1)
+    }
+
+    override fun testRestartApp() {
+        log.d("DefaultUiPresenter", "testRestartApp")
+        //recreate()
+        with(activity) {
+            finish()
+            startActivity(intent)
+        }
     }
 }

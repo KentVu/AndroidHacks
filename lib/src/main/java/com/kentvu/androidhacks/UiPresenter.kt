@@ -9,11 +9,10 @@ class UiPresenter(
 ) {
     interface UiEvents {
         fun onActivityCreate()
-        fun onRestartAppClick()
+        fun onMainFragmentCreate()
         fun onActivityDestroy()
-        fun onScheduleNotificationClick(fullScreen: Boolean)
         fun onNotificationActivityCreate()
-        fun onShowNotificationClick()
+        fun onBtnGoClick(hack: String)
     }
 
     interface BuildConfig {
@@ -21,29 +20,29 @@ class UiPresenter(
     }
 
     interface View {
+        val isNotifFullScreen: Boolean
         val build: BuildConfig
         var details: String
 
-        fun finish()
-        fun restart()
+        fun populateHacks(hacks: List<String>)
     }
 
     val evtListener = object : UiEvents {
         override fun onActivityCreate() {
             log.w("UiPresenter.evt", "onActivityCreate")
-            view.details = "Build: ${view.build.variant}"
             useCase.cancelNotification()
         }
 
-        override fun onRestartAppClick() {
-            log.d("UiPresenter.evt", "onRestartAppClick")
-            testRestartApp()
-        }
-
-        override fun onScheduleNotificationClick(fullScreen: Boolean) {
-            log.d("UiPresenter.evt", "onRestartAppClick:onScheduleNotificationClick:fs=$fullScreen")
-            useCase.scheduleNotification(2000, fullScreen)
-            useCase.closeApp()
+        override fun onBtnGoClick(hack: String) {
+            val fullScreen = view.isNotifFullScreen
+            if (hack == UseCase::scheduleNotification.name) {
+                log.d("UiPresenter.evt", "$hack:fs=$fullScreen")
+                useCase.scheduleNotification(2000, fullScreen)
+                useCase.closeApp()
+            } else {
+                log.d("UiPresenter.evt", "onBtnGoClick:hack=$hack")
+                useCase.invoke(hack)
+            }
         }
 
         override fun onActivityDestroy() {
@@ -54,13 +53,9 @@ class UiPresenter(
             useCase.stopNotification()
         }
 
-        override fun onShowNotificationClick() {
-            useCase.showNotification()
+        override fun onMainFragmentCreate() {
+            view.details = "Build: ${view.build.variant}"
+            view.populateHacks(useCase.hacks)
         }
-    }
-
-    fun testRestartApp() {
-        log.d("DefaultUiPresenter", "testRestartApp")
-        view.restart()
     }
 }
