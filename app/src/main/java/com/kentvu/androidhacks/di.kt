@@ -6,11 +6,9 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    // single instance of HelloRepository
     single<Log> { AndroidLog() }
 
     // Simple Presenter Factory
-    //factory { UiPresenter(view) }
     scope(named<MainActivity>()) {
         scoped { (view: UiPresenter.View, useCase: UseCase) -> UiPresenter(view, get(), useCase) }
     }

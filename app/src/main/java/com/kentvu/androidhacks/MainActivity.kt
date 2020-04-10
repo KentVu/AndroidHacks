@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.View
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -52,10 +53,25 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
             mainScope.launch {
                 switchAndWaitFragment(mainFragment)
                 presenter.evtListener.onActivityCreate()
+                populateSpinner()
             }
         } else { /*ACTION_NOTIFICATION*/
             switchFragment(notificationFragment)
             presenter.evtListener.onNotificationActivityCreate()
+        }
+    }
+
+    /** Create an ArrayAdapter using the string array and a default spinner layout. */
+    private fun populateSpinner() {
+        ArrayAdapter.createFromResource(
+            this@MainActivity,
+            R.array.notification_type,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner
+            spinNotifType.adapter = adapter
         }
     }
 
@@ -119,7 +135,8 @@ class MainActivity() : AppCompatActivity(), UiPresenter.View {
 
     @Suppress("UNUSED_PARAMETER")
     fun onScheduleNotificationClick(v: View) {
-        presenter.evtListener.onScheduleNotificationClick(spinNotifType.checkedRadioButtonId == R.id.radioFullScreen)
+        presenter.evtListener.onScheduleNotificationClick(
+            spinNotifType.selectedItem == resources.getStringArray(R.array.notification_type)[0])
     }
 
     @Suppress("UNUSED_PARAMETER")
